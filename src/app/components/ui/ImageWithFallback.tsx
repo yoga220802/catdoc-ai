@@ -12,7 +12,7 @@ interface ImageWithFallbackProps extends ImageProps {
  * Komponen Image ini adalah Client Component ('use client') yang bisa menangani
  * event 'onError' untuk menampilkan gambar fallback jika gambar utama gagal dimuat.
  */
-export default function ImageWithFallback({ src, fallbackSrc, ...rest }: ImageWithFallbackProps) {
+export default function ImageWithFallback({ src, fallbackSrc, alt, ...rest }: ImageWithFallbackProps) {
   const [imgSrc, setImgSrc] = useState(src);
 
   // Jika prop 'src' berubah, reset state internal
@@ -24,6 +24,7 @@ export default function ImageWithFallback({ src, fallbackSrc, ...rest }: ImageWi
     <Image
       {...rest}
       src={imgSrc}
+      alt={alt} // Meneruskan prop 'alt' secara eksplisit untuk lolos verifikasi linter
       onError={() => {
         // Jika terjadi error saat memuat 'src', ganti dengan 'fallbackSrc'
         setImgSrc(fallbackSrc);
