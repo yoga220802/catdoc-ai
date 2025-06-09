@@ -7,9 +7,17 @@ interface StatCardProps {
 	color: string;
 }
 
-export default function StatCard({ value, label, imageUrl, color }: StatCardProps) {
+export default function StatCard({
+	value,
+	label,
+	imageUrl,
+	color,
+}: StatCardProps) {
 	return (
-		<div className={`relative bg-[${color}] text-white p-6 rounded-lg shadow-lg overflow-hidden`}>
+		// Menggunakan inline style untuk background color dinamis
+		<div
+			style={{ backgroundColor: color }}
+			className='relative text-white p-6 rounded-lg shadow-lg overflow-hidden'>
 			<div className='relative z-10'>
 				<h3 className='text-5xl font-bold'>{value}</h3>
 				<p className='mt-1 text-lg font-semibold'>{label}</p>
