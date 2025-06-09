@@ -16,7 +16,7 @@ export default function HomePage() {
           Konsultasi keluhan kucing anda, diagnosa dini penyakit kucing dengan cepat untuk mencegah penyakit semakin parah.
         </p>
         <Link 
-          href="/diagnose" 
+          href="/home" 
           className="mt-8 inline-block bg-[#4fb8af] text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-[#00796b] transition-transform transform hover:scale-105 font-secondary"
         >
           Yuk, Cek Kesehatan

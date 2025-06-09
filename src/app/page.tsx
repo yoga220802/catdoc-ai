@@ -1,24 +1,23 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-// Pastikan Anda mengimpor LoadingScreen yang sudah bersih dari folder components
-import LoadingScreen from './components/features/LoadingScreen';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import LoadingScreen from "./components/features/LoadingScreen";
 
 export default function RootPage() {
-  const router = useRouter();
+	const router = useRouter();
 
-  // useEffect adalah tempat yang aman untuk efek samping seperti navigasi.
-  // Ini akan berjalan setelah komponen selesai dirender.
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      router.push('/landing'); // Arahkan ke halaman utama
-    }, 3000); 
+	useEffect(() => {
+		// Komponen ini bertanggung jawab atas pengalihan awal setelah penundaan.
+		// Komponen LoadingScreen murni untuk visual.
+		const timer = setTimeout(() => {
+			router.push("/landing");
+		}, 3000); // Arahkan setelah 3 detik
 
-    // Membersihkan timer jika komponen di-unmount sebelum waktunya habis
-    return () => clearTimeout(timer);
-  }, [router]); // Dependency array memastikan efek ini hanya berjalan sekali
+		// Membersihkan timer jika komponen dilepas sebelum timer selesai
+		return () => clearTimeout(timer);
+	}, [router]);
 
-  // Selama render, komponen ini hanya mengembalikan UI LoadingScreen.
-  return <LoadingScreen />;
+	// Render layar loading visual sambil menunggu timer.
+	return <LoadingScreen />;
 }
