@@ -2,6 +2,8 @@ import StatCard from "@/app/components/dashboard/StatCard";
 import Image from "next/image";
 import { getDashboardStats } from "@/lib/api";
 
+export const dynamic = "force-dynamic";
+
 const infoCards = [
 	{
 		icon: "/images/dashboard/responsive.png",
