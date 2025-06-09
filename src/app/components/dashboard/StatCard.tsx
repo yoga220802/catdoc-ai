@@ -4,7 +4,7 @@ interface StatCardProps {
 	value: number | string;
 	label: string;
 	imageUrl: string;
-	color: String;
+	color: string;
 }
 
 export default function StatCard({ value, label, imageUrl, color }: StatCardProps) {
