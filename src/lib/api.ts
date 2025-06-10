@@ -1,63 +1,100 @@
-import type { PaginatedResponse } from '@/types'; // Mengimpor tipe dari model yang baru dibuat
+import type {
+    PaginatedResponse,
+    Gejala,
+    CFTerm,
+    DiagnosisPayload,
+    DiagnosisResponse
+} from '@/types';
 import { CATDOC_API_BASE_URL } from './constant';
 
 /**
- * Fungsi untuk mengambil data dari endpoint tertentu dan mengembalikan properti 'count'.
- * Dibuat generik untuk bisa menerima berbagai tipe item dari PaginatedResponse.
- * @param endpoint - Path endpoint API yang akan di-fetch (misal: 'gejala').
- * @returns Jumlah item (count) atau 0 jika gagal.
+ * Fetches the count of items from a given API endpoint.
+ * @param endpoint - API endpoint path.
+ * @returns Item count or 0 if failed.
  */
 async function fetchCount<T>(endpoint: string): Promise<number> {
     try {
-        // Menggunakan template literal dengan konstanta base URL
-        const response = await fetch(`${CATDOC_API_BASE_URL}/${endpoint}`, {
-            cache: 'no-store' // Selalu mengambil data terbaru
-        });
-
-        // PERBAIKAN: Jika respons tidak OK (misal: 504 Gateway Timeout),
-        // catat errornya dan kembalikan 0, jangan lempar error.
+        const response = await fetch(`${CATDOC_API_BASE_URL}/${endpoint}`, { cache: 'no-store' });
         if (!response.ok) {
-            console.error(`Gagal mengambil data dari ${endpoint}: Status ${response.status} ${response.statusText}`);
-            return 0; // <-- Ini akan mencegah halaman crash
+            console.error(`Error fetching ${endpoint}: ${response.status} ${response.statusText}`);
+            return 0;
         }
-
-        // Memberikan tipe pada data yang di-parse dari JSON untuk type safety
         const data = await response.json() as PaginatedResponse<T>;
         return data.count || 0;
     } catch (error) {
-        // Catch block ini akan menangani error jaringan (jika server tidak terjangkau sama sekali)
-        console.error(`Terjadi kesalahan jaringan saat fetching dari ${endpoint}:`, error);
+        console.error(`Network error fetching ${endpoint}:`, error);
         return 0;
     }
 }
 
 /**
- * Mengambil statistik jumlah total gejala, penyakit, dan pengetahuan dari API.
- * @returns Objek yang berisi jumlah untuk setiap kategori.
+ * Fetches dashboard statistics for gejala, penyakit, and pakar.
+ * @returns Object with counts for each category.
  */
 export async function getDashboardStats() {
     try {
-        // Menggunakan Promise.all untuk menjalankan semua fetch secara paralel.
-        // Tipe <unknown> digunakan karena kita tidak peduli dengan tipe 'items' di sini,
-        // kita hanya butuh 'count' yang sudah dijamin oleh tipe PaginatedResponse.
         const [gejalaCount, penyakitCount, pakarCount] = await Promise.all([
             fetchCount<unknown>('gejala'),
             fetchCount<unknown>('penyakit'),
-            fetchCount<unknown>('pakar') // Endpoint 'pakar' untuk data pengetahuan
+            fetchCount<unknown>('pakar')
         ]);
-
-        return {
-            gejalaCount,
-            penyakitCount,
-            pakarCount,
-        };
+        return { gejalaCount, penyakitCount, pakarCount };
     } catch (error) {
-        console.error("Gagal mengambil data statistik dashboard:", error);
-        // Mengembalikan nilai default jika terjadi kesalahan fatal
+        console.error("Error fetching dashboard stats:", error);
         return { gejalaCount: 0, penyakitCount: 0, pakarCount: 0 };
     }
 }
 
-// Di masa depan, Anda bisa menambahkan fungsi lain di sini, misalnya:
-// export async function getAllGejala(): Promise<Gejala[]> { ... }
-// export async function getPenyakitById(id: string): Promise<Penyakit> { ... }
+/**
+ * Fetches all gejala data.
+ * @returns Array of gejala objects.
+ */
+export async function getAllGejala(): Promise<Gejala[]> {
+    try {
+        const response = await fetch(`${CATDOC_API_BASE_URL}/gejala?page=1&size=100`, { cache: 'no-store' });
+        if (!response.ok) throw new Error('Error fetching gejala data');
+        const data: PaginatedResponse<Gejala> = await response.json();
+        return data.items || [];
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
+/**
+ * Fetches Certainty Factor (CF) terms.
+ * @returns Array of CF terms.
+ */
+export async function getCFTerms(): Promise<CFTerm[]> {
+    try {
+        const response = await fetch(`${CATDOC_API_BASE_URL}/cf-terms`, { cache: 'no-store' });
+        if (!response.ok) throw new Error('Error fetching CF terms');
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
+/**
+ * Sends selected gejala data for diagnosis.
+ * @param payload - Gejala data to send.
+ * @returns Diagnosis result or null if failed.
+ */
+export async function postDiagnosis(payload: DiagnosisPayload): Promise<DiagnosisResponse | null> {
+    try {
+        const response = await fetch(`${CATDOC_API_BASE_URL}/Diagnosis`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+            const errorBody = await response.text();
+            throw new Error(`Diagnosis error: ${response.statusText} - ${errorBody}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}

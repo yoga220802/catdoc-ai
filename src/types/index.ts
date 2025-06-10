@@ -1,6 +1,5 @@
 /**
  * Tipe generik untuk struktur respons API yang memiliki paginasi.
- * Dapat digunakan kembali untuk berbagai jenis data item.
  */
 export interface PaginatedResponse<T> {
     count: number;
@@ -24,8 +23,8 @@ export interface KelompokGejala {
  */
 export interface Gejala {
     id: string;
-    create_at: string; // Tipe data string format ISO date
-    update_at: string; // Tipe data string format ISO date
+    create_at: string;
+    update_at: string;
     nama: string;
     image_url: string;
     deskripsi: string;
@@ -38,8 +37,8 @@ export interface Gejala {
  */
 export interface Penyakit {
     id: string;
-    create_at: string; // Tipe data string format ISO date
-    update_at: string; // Tipe data string format ISO date
+    create_at: string;
+    update_at: string;
     nama: string;
     solusi: string;
     deskripsi: string;
@@ -54,7 +53,53 @@ export interface Pakar {
     nama: string;
 }
 
-// Membuat tipe spesifik untuk setiap jenis respons paginasi untuk kemudahan penggunaan
-export type GejalaResponse = PaginatedResponse<Gejala>;
-export type PenyakitResponse = PaginatedResponse<Penyakit>;
-export type PakarResponse = PaginatedResponse<Pakar>;
+/**
+ * Model untuk istilah dan nilai Certainty Factor (CF).
+ */
+export interface CFTerm {
+    term: string;
+    value: number;
+}
+
+/**
+ * Model untuk input gejala dari pengguna yang akan dikirim ke API.
+ */
+export interface GejalaUserInput {
+    id_gejala: string;
+    cf_user: number;
+}
+
+/**
+ * Model untuk payload (body) yang dikirim saat melakukan diagnosis.
+ */
+export interface DiagnosisPayload {
+    gejala_user: GejalaUserInput[];
+}
+
+/**
+ * Model untuk detail bukti pada hasil diagnosis.
+ */
+export interface EvidenceDetail {
+    id_gejala: string;
+    cf_user: number;
+    cf_pakar_avg: number;
+    cf_evidence: number;
+}
+
+/**
+ * Model untuk satu hasil penyakit yang sudah dirangking.
+ */
+export interface RankedResult {
+    penyakit: Penyakit;
+    certainty_score: number;
+    matching_gejala_count: number;
+    matching_gejala_ids: string[];
+    evidence_details: EvidenceDetail[];
+}
+
+/**
+ * Model untuk respons lengkap dari endpoint diagnosis.
+ */
+export interface DiagnosisResponse {
+    ranked_results: RankedResult[];
+}
