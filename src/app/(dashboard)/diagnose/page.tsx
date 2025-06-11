@@ -321,7 +321,7 @@ export default function DiagnosePage() {
 								onClick={() => toggleGroup(groupName)}
 								className='w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100'
 								aria-expanded={!!openGroups[groupName]}>
-								<h2 className='font-semibold text-lg text-gray-700'>{groupName}</h2>
+								<h2 className='font-semibold text-2xl text-gray-700'>{groupName}</h2>
 								<svg
 									className={`w-5 h-5 text-gray-500 transform transition-transform ${
 										openGroups[groupName] ? "rotate-180" : ""
@@ -341,10 +341,10 @@ export default function DiagnosePage() {
 									<table className='w-full text-sm text-left text-gray-500'>
 										<thead className='text-xs text-gray-700 uppercase bg-gray-50'>
 											<tr>
-												<th scope='col' className='px-6 py-3'>
+												<th scope='col' className='px-6 py-3 text-base'>
 													Gejala
 												</th>
-												<th scope='col' className='px-6 py-3 w-64'>
+												<th scope='col' className='px-6 py-3 w-64 text-base'>
 													Pilih Kondisi
 												</th>
 											</tr>
@@ -352,10 +352,10 @@ export default function DiagnosePage() {
 										<tbody>
 											{gejalaInGroup.map((gejala) => (
 												<tr key={gejala.id} className='bg-white border-t hover:bg-gray-50'>
-													<td className='px-6 py-4'>{gejala.pertanyaan}</td>
+													<td className='px-6 py-4 text-black text-base'>{gejala.pertanyaan}</td>
 													<td className='px-6 py-4'>
 														<select
-															className='w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500'
+															className='w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-black text-base'
 															value={selections[gejala.id] || 0}
 															onChange={(e) =>
 																handleSelectionChange(gejala.id, e.target.value)
