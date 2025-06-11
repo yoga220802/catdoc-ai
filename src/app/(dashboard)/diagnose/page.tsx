@@ -7,18 +7,76 @@ import {
 	postDiagnosis,
 	getAllPakar,
 } from "@/lib/api";
-import type { Gejala, CFTerm, DiagnosisResponse, Pakar } from "@/types";
+import type {
+	Gejala,
+	CFTerm,
+	DiagnosisResponse,
+	Pakar,
+	RankedResult,
+} from "@/types";
 import { InfoIcon } from "@/app/components/icons";
 import Image from "next/image";
-import LoadingScreen from "@/app/components/features/LoadingScreen"; 
+import LoadingScreen from "@/app/components/features/LoadingScreen";
 
+// Tipe untuk state yang menyimpan pilihan pengguna
 type UserSelections = {
 	[gejalaId: string]: number; // key: id gejala, value: nilai CF
 };
 
-
+// Tipe untuk data gejala yang sudah dikelompokkan
 type GroupedGejala = {
 	[groupName: string]: Gejala[];
+};
+
+// Komponen baru untuk menampilkan hasil diagnosis lainnya
+const OtherResultCard = ({
+	result,
+	rank,
+}: {
+	result: RankedResult;
+	rank: number;
+}) => {
+	const [isOpen, setIsOpen] = useState(false);
+
+	return (
+		<div className='border border-gray-200 rounded-lg'>
+			<button
+				onClick={() => setIsOpen(!isOpen)}
+				className='w-full flex justify-between items-center p-4 text-left'
+				aria-expanded={isOpen}>
+				<div className='flex items-center gap-4'>
+					<span className='text-lg font-bold text-gray-400'>{rank}</span>
+					<span className='font-semibold text-gray-800'>{result.penyakit.nama}</span>
+				</div>
+				<div className='flex items-center gap-3'>
+					<span className='text-lg font-bold text-gray-600'>
+						{result.certainty_score.toFixed(0)}%
+					</span>
+					<svg
+						className={`w-5 h-5 text-gray-500 transform transition-transform ${
+							isOpen ? "rotate-180" : ""
+						}`}
+						fill='none'
+						stroke='currentColor'
+						viewBox='0 0 24 24'>
+						<path
+							strokeLinecap='round'
+							strokeLinejoin='round'
+							strokeWidth='2'
+							d='M19 9l-7 7-7-7'></path>
+					</svg>
+				</div>
+			</button>
+			{isOpen && (
+				<div className='p-4 border-t border-gray-200'>
+					<h4 className='font-semibold text-gray-700'>Deskripsi:</h4>
+					<p className='text-sm text-gray-600 mb-2'>{result.penyakit.deskripsi}</p>
+					<h4 className='font-semibold text-gray-700'>Solusi:</h4>
+					<p className='text-sm text-gray-600'>{result.penyakit.solusi}</p>
+				</div>
+			)}
+		</div>
+	);
 };
 
 export default function DiagnosePage() {
@@ -127,14 +185,19 @@ export default function DiagnosePage() {
 		return <LoadingScreen inline message='Memuat daftar gejala...' />;
 	}
 
+	// Tampilan Hasil Diagnosa
 	if (showResults && diagnosisResult) {
 		const topResult = diagnosisResult.ranked_results[0];
+		const otherResults = diagnosisResult.ranked_results.slice(1);
+
 		return (
 			<div className='bg-white p-6 rounded-lg shadow-md'>
 				<h2 className='text-2xl font-bold mb-4 text-[#004d40]'>Hasil Diagnosa</h2>
-				<div className='bg-teal-50 p-6 rounded-lg shadow-inner'>
+
+				{/* Hasil Utama */}
+				<div className='bg-teal-50 p-6 rounded-lg shadow-inner mb-8'>
 					<h3 className='text-lg font-semibold mb-2 text-center text-gray-700'>
-						Jenis Penyakit Yang Diderita
+						Diagnosis Paling Mungkin
 					</h3>
 					<div className='flex flex-col md:flex-row items-center justify-center gap-8 text-center'>
 						<div className='flex-1'>
@@ -142,7 +205,7 @@ export default function DiagnosePage() {
 								{topResult.penyakit.nama.toUpperCase()}
 							</p>
 							<p className='text-7xl font-bold text-teal-500'>
-								{(topResult.certainty_score * 100).toFixed(0)}%
+								{topResult.certainty_score.toFixed(0)}%
 							</p>
 						</div>
 						<Image
@@ -154,7 +217,8 @@ export default function DiagnosePage() {
 						/>
 					</div>
 				</div>
-				<div className='mt-6'>
+
+				<div className='mb-8'>
 					<h3 className='text-xl font-semibold text-gray-800'>Deskripsi</h3>
 					<p className='text-gray-600 mt-2'>{topResult.penyakit.deskripsi}</p>
 					<h3 className='text-xl font-semibold text-gray-800 mt-4'>
@@ -162,6 +226,25 @@ export default function DiagnosePage() {
 					</h3>
 					<p className='text-gray-600 mt-2'>{topResult.penyakit.solusi}</p>
 				</div>
+
+				{/* Hasil Lainnya */}
+				{otherResults.length > 0 && (
+					<div className='mt-8'>
+						<h3 className='text-xl font-bold mb-4 text-gray-800'>
+							Kemungkinan Penyakit Lain
+						</h3>
+						<div className='space-y-2'>
+							{otherResults.map((result, index) => (
+								<OtherResultCard
+									key={result.penyakit.id}
+									result={result}
+									rank={index + 2}
+								/>
+							))}
+						</div>
+					</div>
+				)}
+
 				<button
 					onClick={handleReset}
 					className='mt-8 w-full bg-teal-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-teal-600 transition-colors'>
@@ -180,7 +263,7 @@ export default function DiagnosePage() {
 						<select
 							value={selectedPakar || ""}
 							onChange={(e) => setSelectedPakar(e.target.value || null)}
-							className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500  placeholder-[#004d40] text-[#004d40] focus:outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500 disabled:border-gray-200'
+							className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 placeholder-[#004d40] text-[#004d40] focus:outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500 disabled:border-gray-200'
 							aria-label='Pilih Pakar'>
 							<option value=''>Gunakan Semua Pakar</option>
 							{pakarList.map((pakar) => (
@@ -196,7 +279,7 @@ export default function DiagnosePage() {
 							placeholder='Cari gejala...'
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
-							className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500  placeholder-[#004d40] text-[#004d40] focus:outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500 disabled:border-gray-200'
+							className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 placeholder-[#004d40] text-[#004d40] focus:outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500 disabled:border-gray-200'
 						/>
 						<div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
 							<svg
