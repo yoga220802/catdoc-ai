@@ -10,10 +10,12 @@ import {
 import type { Gejala, CFTerm, DiagnosisResponse, Pakar } from "@/types";
 import { InfoIcon } from "@/app/components/icons";
 import Image from "next/image";
+import LoadingScreen from "@/app/components/features/LoadingScreen"; 
 
 type UserSelections = {
-	[gejalaId: string]: number;
+	[gejalaId: string]: number; // key: id gejala, value: nilai CF
 };
+
 
 type GroupedGejala = {
 	[groupName: string]: Gejala[];
@@ -106,7 +108,6 @@ export default function DiagnosePage() {
 			setIsProcessing(false);
 			return;
 		}
-		// Mengirim ID pakar yang dipilih ke fungsi postDiagnosis
 		const result = await postDiagnosis({ gejala_user }, selectedPakar);
 		setDiagnosisResult(result);
 		setShowResults(true);
@@ -121,8 +122,9 @@ export default function DiagnosePage() {
 		setSelectedPakar(null);
 	};
 
+	// Tampilan loading screen saat mengambil data awal
 	if (isLoading) {
-		return <div className='text-center p-10'>Memuat data...</div>;
+		return <LoadingScreen inline message='Memuat daftar gejala...' />;
 	}
 
 	if (showResults && diagnosisResult) {
@@ -174,12 +176,11 @@ export default function DiagnosePage() {
 			<div className='flex justify-between items-center mb-4 flex-wrap gap-4'>
 				<h1 className='text-2xl font-bold text-[#004d40]'>Diagnosa Penyakit</h1>
 				<div className='flex items-center gap-4'>
-					{/* Dropdown untuk memilih pakar */}
 					<div className='relative w-56'>
 						<select
 							value={selectedPakar || ""}
 							onChange={(e) => setSelectedPakar(e.target.value || null)}
-							className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 placeholder-[#004d40] text-[#004d40] focus:outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500 disabled:border-gray-200'
+							className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500  placeholder-[#004d40] text-[#004d40] focus:outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500 disabled:border-gray-200'
 							aria-label='Pilih Pakar'>
 							<option value=''>Gunakan Semua Pakar</option>
 							{pakarList.map((pakar) => (
@@ -189,14 +190,13 @@ export default function DiagnosePage() {
 							))}
 						</select>
 					</div>
-					{/* Input pencarian */}
 					<div className='relative w-56'>
 						<input
 							type='text'
 							placeholder='Cari gejala...'
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
-							className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 placeholder-[#004d40] text-[#004d40] focus:outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500 disabled:border-gray-200'
+							className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500  placeholder-[#004d40] text-[#004d40] focus:outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500 disabled:border-gray-200'
 						/>
 						<div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
 							<svg

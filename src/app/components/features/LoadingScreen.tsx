@@ -2,11 +2,27 @@
 
 import Image from "next/image";
 
-// Komponen ini tidak lagi mengelola state progress atau durasi.
-// Ini murni untuk menampilkan UI loading.
-export default function LoadingScreen() {
+interface LoadingScreenProps {
+	/**
+	 * @default false
+	 */
+	inline?: boolean;
+	/**
+	 * @default "Memuat data..."
+	 */
+	message?: string;
+}
+
+export default function LoadingScreen({
+	inline = false,
+	message = "Memuat data...",
+}: LoadingScreenProps) {
+	const containerClasses = inline
+		? "flex flex-col items-center justify-center h-full p-20" // Kelas untuk mode inline
+		: "flex flex-col items-center justify-center min-h-screen bg-white"; // Kelas untuk mode layar penuh
+
 	return (
-		<div className='flex flex-col items-center justify-center min-h-screen bg-white'>
+		<div className={containerClasses}>
 			{/* Container untuk Logo dan Teks */}
 			<div className='flex flex-col items-center justify-center mb-6'>
 				<div className='w-72 h-72 md:w-[200px] md:h-[200px] rounded-full bg-[#4BB79A] flex items-center justify-center shadow-lg'>
@@ -23,18 +39,14 @@ export default function LoadingScreen() {
 
 			{/* Container untuk Progress Bar */}
 			<div className='w-64'>
-				{/* Latar belakang progress bar dengan overflow-hidden */}
 				<div className='bg-gray-200 rounded-full h-2.5 w-full relative overflow-hidden'>
-					{/* Bar animasi yang bergerak terus-menerus */}
 					<div className='absolute h-full w-full bg-gradient-to-r from-[#4fb8af] to-[#6de5de] left-0 top-0 animate-indeterminate' />
 				</div>
-				{/* Teks diubah menjadi lebih umum */}
 				<p className='mt-2 text-sm text-center text-gray-600 font-semibold'>
-					Memuat data...
+					{message}
 				</p>
 			</div>
 
-			{/* Menambahkan keyframes untuk animasi indeterminate ke CSS global */}
 			<style jsx global>{`
 				@keyframes indeterminate-progress {
 					0% {
