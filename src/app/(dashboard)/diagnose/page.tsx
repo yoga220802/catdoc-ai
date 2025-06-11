@@ -256,10 +256,14 @@ export default function DiagnosePage() {
 
 	return (
 		<div className='relative pb-24'>
-			<div className='flex justify-between items-center mb-4 flex-wrap gap-4'>
-				<h1 className='text-2xl font-bold text-[#004d40]'>Diagnosa Penyakit</h1>
-				<div className='flex items-center gap-4'>
-					<div className='relative w-56'>
+			{/* PERBAIKAN: Tata letak dibuat responsif */}
+			<div className='flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-4'>
+				<h1 className='text-2xl font-bold text-[#004d40] flex-shrink-0'>
+					Diagnosa Penyakit
+				</h1>
+				<div className='flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto'>
+					{/* Dropdown untuk memilih pakar */}
+					<div className='relative w-full sm:w-56'>
 						<select
 							value={selectedPakar || ""}
 							onChange={(e) => setSelectedPakar(e.target.value || null)}
@@ -273,7 +277,8 @@ export default function DiagnosePage() {
 							))}
 						</select>
 					</div>
-					<div className='relative w-56'>
+					{/* Input pencarian */}
+					<div className='relative w-full sm:w-56'>
 						<input
 							type='text'
 							placeholder='Cari gejala...'
