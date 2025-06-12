@@ -65,8 +65,8 @@ export default async function HomePage() {
 							DI
 						</p>
 						<div className='text-gray-600'>
-							<p className='font-semibold'>SISTEM PAKAR</p>
-							<p>DIAGNOSA PENYAKIT KUCING</p>
+							<p className='font-semibold text-[#35a89f]'>SISTEM PAKAR</p>
+							<p className='text-[#35a89f]'>DIAGNOSA PENYAKIT KUCING</p>
 						</div>
 					</div>
 				</div>
