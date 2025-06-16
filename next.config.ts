@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'cat-diagnosis-api.vercel.app',
         port: '',
-        pathname: '/static/image/**',
+        pathname: '/static/images/**',
       },
       {
         protocol: 'https',
