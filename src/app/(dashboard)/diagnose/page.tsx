@@ -13,20 +13,49 @@ import type {
 	DiagnosisResponse,
 	Pakar,
 	RankedResult,
+	EvidenceDetail,
 } from "@/types";
 import { InfoIcon } from "@/app/components/icons";
-import Image from "next/image";
+import ImageWithFallback from "@/app/components/ui/ImageWithFallback";
 import LoadingScreen from "@/app/components/features/LoadingScreen";
 
 // Tipe untuk state yang menyimpan pilihan pengguna
 type UserSelections = {
-	[gejalaId: string]: number; // key: id gejala, value: nilai CF
+	[gejalaId: string]: number;
 };
 
 // Tipe untuk data gejala yang sudah dikelompokkan
 type GroupedGejala = {
 	[groupName: string]: Gejala[];
 };
+
+// Helper function untuk menentukan warna CF Evidence
+const getCfEvidenceColor = (value: number) => {
+	if (value > 0) return "text-green-600 font-semibold";
+	if (value < 0) return "text-red-600 font-semibold";
+	return "text-gray-500";
+};
+
+// Komponen baru untuk menampilkan detail gejala yang cocok
+const MatchedEvidenceList = ({ details }: { details: EvidenceDetail[] }) => (
+	<div className='bg-gray-100 p-4 rounded-lg'>
+		<h3 className='text-lg font-semibold text-gray-800'>
+			Gejala yang Cocok ({details.length})
+		</h3>
+		<ul className='mt-2 space-y-2'>
+			{details.map((evidence) => (
+				<li
+					key={evidence.gejala.id}
+					className='flex justify-between items-center text-sm'>
+					<span className='text-gray-700'>{evidence.gejala.pertanyaan}</span>
+					<span className={getCfEvidenceColor(evidence.cf_evidence)}>
+						CF: {(evidence.cf_evidence * 100).toFixed(0)}%
+					</span>
+				</li>
+			))}
+		</ul>
+	</div>
+);
 
 // Komponen baru untuk menampilkan hasil diagnosis lainnya
 const OtherResultCard = ({
@@ -68,11 +97,20 @@ const OtherResultCard = ({
 				</div>
 			</button>
 			{isOpen && (
-				<div className='p-4 border-t border-gray-200'>
-					<h4 className='font-semibold text-gray-700'>Deskripsi:</h4>
-					<p className='text-sm text-gray-600 mb-2'>{result.penyakit.deskripsi}</p>
-					<h4 className='font-semibold text-gray-700'>Solusi:</h4>
-					<p className='text-sm text-gray-600'>{result.penyakit.solusi}</p>
+				<div className='p-4 border-t border-gray-200 space-y-4'>
+					<div>
+						<h4 className='font-semibold text-gray-700'>Deskripsi:</h4>
+						<p className='text-sm text-gray-600'>{result.penyakit.deskripsi}</p>
+					</div>
+					<div>
+						<h4 className='font-semibold text-gray-700'>Solusi:</h4>
+						<p className='text-sm text-gray-600'>{result.penyakit.solusi}</p>
+					</div>
+					<div>
+						<h4 className='font-semibold text-gray-700'>Pencegahan:</h4>
+						<p className='text-sm text-gray-600'>{result.penyakit.pencegahan}</p>
+					</div>
+					<MatchedEvidenceList details={result.evidence_details} />
 				</div>
 			)}
 		</div>
@@ -80,12 +118,9 @@ const OtherResultCard = ({
 };
 
 export default function DiagnosePage() {
-	// State untuk data dari API
 	const [gejalaList, setGejalaList] = useState<Gejala[]>([]);
 	const [cfTerms, setCfTerms] = useState<CFTerm[]>([]);
 	const [pakarList, setPakarList] = useState<Pakar[]>([]);
-
-	// State untuk UI dan proses
 	const [selections, setSelections] = useState<UserSelections>({});
 	const [selectedPakar, setSelectedPakar] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -96,23 +131,18 @@ export default function DiagnosePage() {
 	const [openGroups, setOpenGroups] = useState<{ [key: string]: boolean }>({});
 	const [searchQuery, setSearchQuery] = useState("");
 
-	// Mengelompokkan gejala berdasarkan kategori dan filter pencarian
 	const groupedGejala = useMemo(() => {
 		const filteredGejala = gejalaList.filter((gejala) =>
 			gejala.pertanyaan.toLowerCase().includes(searchQuery.toLowerCase())
 		);
-
 		return filteredGejala.reduce((acc, gejala) => {
 			const groupName = gejala.kelompoks[0]?.nama || "Lain-lain";
-			if (!acc[groupName]) {
-				acc[groupName] = [];
-			}
+			if (!acc[groupName]) acc[groupName] = [];
 			acc[groupName].push(gejala);
 			return acc;
 		}, {} as GroupedGejala);
 	}, [gejalaList, searchQuery]);
 
-	// Mengambil data awal
 	useEffect(() => {
 		async function fetchData() {
 			setIsLoading(true);
@@ -129,14 +159,13 @@ export default function DiagnosePage() {
 		fetchData();
 	}, []);
 
-	// Efek untuk membuka semua grup saat pencarian aktif
 	useEffect(() => {
 		if (searchQuery) {
 			const allGroupNames = Object.keys(groupedGejala);
-			const allOpen = allGroupNames.reduce((acc, name) => {
-				acc[name] = true;
-				return acc;
-			}, {} as { [key: string]: boolean });
+			const allOpen = allGroupNames.reduce(
+				(acc, name) => ({ ...acc, [name]: true }),
+				{}
+			);
 			setOpenGroups(allOpen);
 		} else {
 			if (Object.keys(groupedGejala).length > 0) {
@@ -146,13 +175,10 @@ export default function DiagnosePage() {
 		}
 	}, [searchQuery, groupedGejala]);
 
-	const toggleGroup = (groupName: string) => {
+	const toggleGroup = (groupName: string) =>
 		setOpenGroups((prev) => ({ ...prev, [groupName]: !prev[groupName] }));
-	};
-
-	const handleSelectionChange = (gejalaId: string, cfValue: string) => {
+	const handleSelectionChange = (gejalaId: string, cfValue: string) =>
 		setSelections((prev) => ({ ...prev, [gejalaId]: parseFloat(cfValue) }));
-	};
 
 	const handleSubmit = async () => {
 		setIsProcessing(true);
@@ -180,23 +206,45 @@ export default function DiagnosePage() {
 		setSelectedPakar(null);
 	};
 
-	// Tampilan loading screen saat mengambil data awal
 	if (isLoading) {
 		return <LoadingScreen inline message='Memuat daftar gejala...' />;
 	}
 
-	// Tampilan Hasil Diagnosa
 	if (showResults && diagnosisResult) {
+		if (
+			!diagnosisResult.ranked_results ||
+			diagnosisResult.ranked_results.length === 0
+		) {
+			return (
+				<div className='text-center p-10 bg-white rounded-lg shadow-md'>
+					<h2 className='text-2xl font-bold mb-4 text-[#004d40]'>
+						Hasil Tidak Ditemukan
+					</h2>
+					<p className='text-gray-600 mb-6'>
+						Tidak ada penyakit yang cocok dengan kombinasi gejala yang Anda pilih.
+						Silakan coba lagi.
+					</p>
+					<button
+						onClick={handleReset}
+						className='bg-teal-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-teal-600 transition-colors'>
+						Diagnosa Ulang
+					</button>
+				</div>
+			);
+		}
+
 		const topResult = diagnosisResult.ranked_results[0];
 		const otherResults = diagnosisResult.ranked_results.slice(1);
 
 		return (
-			<div className='bg-white p-6 rounded-lg shadow-md'>
-				<h2 className='text-2xl font-bold mb-4 text-[#004d40]'>Hasil Diagnosa</h2>
+			<div className='bg-white p-6 rounded-lg shadow-md space-y-8'>
+				<h2 className='text-3xl font-bold text-center text-[#004d40]'>
+					Hasil Diagnosa
+				</h2>
 
-				{/* Hasil Utama */}
-				<div className='bg-teal-50 p-6 rounded-lg shadow-inner mb-8'>
-					<h3 className='text-lg font-semibold mb-2 text-center text-gray-700'>
+				{/* HASIL UTAMA */}
+				<div className='bg-teal-50 p-6 rounded-lg shadow-inner'>
+					<h3 className='text-lg font-semibold mb-4 text-center text-gray-700'>
 						Diagnosis Paling Mungkin
 					</h3>
 					<div className='flex flex-col md:flex-row items-center justify-center gap-8 text-center'>
@@ -208,9 +256,10 @@ export default function DiagnosePage() {
 								{topResult.certainty_score.toFixed(0)}%
 							</p>
 						</div>
-						<Image
-							src='/images/meme-cat.jpg'
-							alt='Meme Kucing'
+						<ImageWithFallback
+							src={topResult.penyakit.image_url || ""}
+							fallbackSrc='https://placehold.co/200x150/e0f7fa/004d40?text=Gambar+Penyakit'
+							alt={`Gambar untuk penyakit ${topResult.penyakit.nama}`}
 							width={200}
 							height={150}
 							className='rounded-lg object-cover'
@@ -218,16 +267,24 @@ export default function DiagnosePage() {
 					</div>
 				</div>
 
-				<div className='mb-8'>
-					<h3 className='text-xl font-semibold text-gray-800'>Deskripsi</h3>
-					<p className='text-gray-600 mt-2'>{topResult.penyakit.deskripsi}</p>
-					<h3 className='text-xl font-semibold text-gray-800 mt-4'>
-						Solusi Penanganan
-					</h3>
-					<p className='text-gray-600 mt-2'>{topResult.penyakit.solusi}</p>
+				<div className='space-y-4'>
+					<div>
+						<h3 className='text-xl font-semibold text-gray-800'>Deskripsi</h3>
+						<p className='text-gray-600 mt-1'>{topResult.penyakit.deskripsi}</p>
+					</div>
+					<div>
+						<h3 className='text-xl font-semibold text-gray-800'>Solusi Penanganan</h3>
+						<p className='text-gray-600 mt-1'>{topResult.penyakit.solusi}</p>
+					</div>
+					<div>
+						<h3 className='text-xl font-semibold text-gray-800'>Pencegahan</h3>
+						<p className='text-gray-600 mt-1'>{topResult.penyakit.pencegahan}</p>
+					</div>
 				</div>
 
-				{/* Hasil Lainnya */}
+				<MatchedEvidenceList details={topResult.evidence_details} />
+
+				{/* HASIL LAINNYA */}
 				{otherResults.length > 0 && (
 					<div className='mt-8'>
 						<h3 className='text-xl font-bold mb-4 text-gray-800'>
@@ -253,7 +310,6 @@ export default function DiagnosePage() {
 			</div>
 		);
 	}
-
 	return (
 		<div className='relative pb-24'>
 			{/* PERBAIKAN: Tata letak dibuat responsif */}
@@ -352,7 +408,9 @@ export default function DiagnosePage() {
 										<tbody>
 											{gejalaInGroup.map((gejala) => (
 												<tr key={gejala.id} className='bg-white border-t hover:bg-gray-50'>
-													<td className='px-6 py-4 text-black text-base'>{gejala.pertanyaan}</td>
+													<td className='px-6 py-4 text-black text-base'>
+														{gejala.pertanyaan}
+													</td>
 													<td className='px-6 py-4'>
 														<select
 															className='w-full p-2 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-black text-base'

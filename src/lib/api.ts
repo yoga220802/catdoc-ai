@@ -4,7 +4,7 @@ import type {
     CFTerm,
     DiagnosisPayload,
     DiagnosisResponse,
-    Pakar
+    Pakar, Penyakit
 } from '@/types';
 import { CATDOC_API_BASE_URL } from './constant';
 
@@ -41,6 +41,20 @@ export async function getDashboardStats() {
 
 
 // --- FUNGSI UNTUK DIAGNOSA ---
+
+export async function getAllPenyakit(): Promise<Penyakit[]> {
+    try {
+        const response = await fetch(`${CATDOC_API_BASE_URL}/penyakit?page=1&size=100`, { cache: 'no-store' });
+        if (!response.ok) {
+            throw new Error('Gagal mengambil data penyakit');
+        }
+        const data: PaginatedResponse<Penyakit> = await response.json();
+        return data.items || [];
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
 
 export async function getAllGejala(): Promise<Gejala[]> {
     try {

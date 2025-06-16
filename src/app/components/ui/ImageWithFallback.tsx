@@ -1,34 +1,47 @@
-'use client';
+"use client";
 
-import Image, { ImageProps } from 'next/image';
-import { useState, useEffect } from 'react';
+import Image, { ImageProps } from "next/image";
+import { useState, useEffect } from "react";
 
-// Gabungkan props dari Next/Image dengan prop fallback kustom kita
 interface ImageWithFallbackProps extends ImageProps {
-  fallbackSrc: string;
+	fallbackSrc: string;
 }
 
-/**
- * Komponen Image ini adalah Client Component ('use client') yang bisa menangani
- * event 'onError' untuk menampilkan gambar fallback jika gambar utama gagal dimuat.
- */
-export default function ImageWithFallback({ src, fallbackSrc, alt, ...rest }: ImageWithFallbackProps) {
-  const [imgSrc, setImgSrc] = useState(src);
+export default function ImageWithFallback({
+	src,
+	fallbackSrc,
+	alt,
+	...rest
+}: ImageWithFallbackProps) {
+	const [imgSrc, setImgSrc] = useState(src);
+	const [isLoading, setIsLoading] = useState(true);
 
-  // Jika prop 'src' berubah, reset state internal
-  useEffect(() => {
-    setImgSrc(src);
-  }, [src]);
+	useEffect(() => {
+		setImgSrc(src);
+		setIsLoading(true);
+	}, [src]);
 
-  return (
-    <Image
-      {...rest}
-      src={imgSrc}
-      alt={alt} // Meneruskan prop 'alt' secara eksplisit untuk lolos verifikasi linter
-      onError={() => {
-        // Jika terjadi error saat memuat 'src', ganti dengan 'fallbackSrc'
-        setImgSrc(fallbackSrc);
-      }}
-    />
-  );
+	return (
+		<div
+			className='relative overflow-hidden rounded-lg'
+			style={{ width: rest.width, height: rest.height }}>
+			{isLoading && (
+				<div className='absolute inset-0 w-full h-full rounded-lg bg-gray-200 animate-pulse' />
+			)}
+
+			<Image
+				{...rest}
+				src={imgSrc || fallbackSrc}
+				alt={alt}
+				className={`transition-opacity duration-300 ease-in-out rounded-lg ${
+					isLoading ? "opacity-0" : "opacity-100"
+				}`}
+				onLoad={() => setIsLoading(false)}
+				onError={() => {
+					setIsLoading(false);
+					setImgSrc(fallbackSrc);
+				}}
+			/>
+		</div>
+	);
 }
