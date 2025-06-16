@@ -26,7 +26,7 @@ export interface Gejala {
     create_at: string;
     update_at: string;
     nama: string;
-    image_url: string;
+    image_url: string | null;
     deskripsi: string;
     pertanyaan: string;
     kelompoks: KelompokGejala[];
@@ -43,6 +43,7 @@ export interface Penyakit {
     solusi: string;
     deskripsi: string;
     pencegahan: string;
+    image_url: string | null;
 }
 
 /**
@@ -53,25 +54,18 @@ export interface Pakar {
     nama: string;
 }
 
-/**
- * Model untuk istilah dan nilai Certainty Factor (CF).
- */
+// ---- TIPE UNTUK DIAGNOSA ----
+
 export interface CFTerm {
     term: string;
     value: number;
 }
 
-/**
- * Model untuk input gejala dari pengguna yang akan dikirim ke API.
- */
 export interface GejalaUserInput {
     id_gejala: string;
     cf_user: number;
 }
 
-/**
- * Model untuk payload (body) yang dikirim saat melakukan diagnosis.
- */
 export interface DiagnosisPayload {
     gejala_user: GejalaUserInput[];
 }
@@ -80,7 +74,7 @@ export interface DiagnosisPayload {
  * Model untuk detail bukti pada hasil diagnosis.
  */
 export interface EvidenceDetail {
-    id_gejala: string;
+    gejala: Gejala;
     cf_user: number;
     cf_pakar_avg: number;
     cf_evidence: number;
