@@ -312,14 +312,13 @@ export default function DiagnosePage() {
 							.filter(([, cfValue]) => cfValue !== 0)
 							.map(([gejalaId, cfValue]) => {
 								const gejala = gejalaList.find((g) => g.id === gejalaId);
+								const certaintyTerm = cfTerms.find((term) => term.value === cfValue)?.term || "Tidak Tahu";
 								return (
 									<li
 										key={gejalaId}
 										className='flex justify-between items-center text-sm'>
 										<span className='text-gray-700'>{gejala?.pertanyaan}</span>
-										<span className={getCfEvidenceColor(cfValue)}>
-											CF: {(cfValue * 100).toFixed(0)}%
-										</span>
+										<span className='text-gray-600 font-semibold'>{certaintyTerm}</span>
 									</li>
 								);
 							})}
