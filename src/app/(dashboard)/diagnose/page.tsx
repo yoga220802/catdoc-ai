@@ -302,6 +302,31 @@ export default function DiagnosePage() {
 					</div>
 				)}
 
+				{/* DAFTAR GEJALA YANG DIPILIH */}
+				<div className='bg-gray-100 p-4 rounded-lg'>
+					<h3 className='text-lg font-semibold text-gray-800'>
+						Gejala yang Dipilih
+					</h3>
+					<ul className='mt-2 space-y-2'>
+						{Object.entries(selections)
+							.filter(([, cfValue]) => cfValue !== 0)
+							.map(([gejalaId, cfValue]) => {
+								const gejala = gejalaList.find((g) => g.id === gejalaId);
+								return (
+									<li
+										key={gejalaId}
+										className='flex justify-between items-center text-sm'>
+										<span className='text-gray-700'>{gejala?.pertanyaan}</span>
+										<span className={getCfEvidenceColor(cfValue)}>
+											CF: {(cfValue * 100).toFixed(0)}%
+										</span>
+									</li>
+								);
+							})}
+					</ul>
+				</div>
+
+				{/* TOMBOL DIAGNOSA ULANG */}
 				<button
 					onClick={handleReset}
 					className='mt-8 w-full bg-teal-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-teal-600 transition-colors'>
