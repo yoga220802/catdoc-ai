@@ -5,6 +5,7 @@ interface StatCardProps {
 	label: string;
 	imageUrl: string;
 	color: string;
+	href?: string;
 }
 
 export default function StatCard({
@@ -12,9 +13,9 @@ export default function StatCard({
 	label,
 	imageUrl,
 	color,
+	href,
 }: StatCardProps) {
-	return (
-		// Menggunakan inline style untuk background color dinamis
+	const cardContent = (
 		<div
 			style={{ backgroundColor: color }}
 			className='relative text-white p-6 rounded-lg shadow-lg overflow-hidden'>
@@ -30,5 +31,13 @@ export default function StatCard({
 				className='absolute -right-4 -bottom-4 opacity-30 z-0'
 			/>
 		</div>
+	);
+
+	return href ? (
+		<a href={href} className='block'>
+			{cardContent}
+		</a>
+	) : (
+		cardContent
 	);
 }

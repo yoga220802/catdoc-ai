@@ -38,12 +38,14 @@ export default async function HomePage() {
 					label='Gejala'
 					imageUrl='/images/dashboard/stats-gejala.png'
 					color='#A1E6D0'
+					href="/diagnose"
 				/>
 				<StatCard
 					value={penyakitCount}
 					label='Penyakit'
 					imageUrl='/images/dashboard/stats-penyakit.png'
 					color='#6CCDAF'
+					href="/info"
 				/>
 				<StatCard
 					value={pakarCount}
