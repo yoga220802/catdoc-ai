@@ -49,8 +49,8 @@ export default async function HomePage() {
 				/>
 				<StatCard
 					value={pakarCount}
-					label='Pengetahuan'
-					imageUrl='/images/dashboard/stats-pengetahuan.png'
+					label='Pakar'
+					imageUrl='/images/dashboard/stats-pakar.png'
 					color='#4BB79A'
 				/>
 			</div>
