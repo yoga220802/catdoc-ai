@@ -16,7 +16,6 @@ import type {
 	Penyakit,
 	Gejala,
 	RuleCreatePayload,
-	RuleCFPayload,
 } from "@/types";
 import LoadingScreen from "@/app/components/features/LoadingScreen";
 import AdminFormModal from "@/app/components/admin/AdminFormModal";
