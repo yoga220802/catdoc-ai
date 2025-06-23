@@ -116,3 +116,37 @@ export interface Rule {
     gejala: Gejala;
     rule_cfs: RuleCF[];
 }
+
+// --- TIPE BARU UNTUK PAYLOAD ADMIN ---
+
+export interface PenyakitPayload {
+    id?: string; // id bersifat opsional saat membuat baru
+    nama: string;
+    deskripsi: string;
+    solusi: string;
+    pencegahan: string;
+}
+
+export interface GejalaPayload {
+    id?: string;
+    nama: string;
+    pertanyaan: string;
+    deskripsi: string;
+    kelompoks: number[];
+}
+
+export interface PakarPayload {
+    id?: string;
+    nama: string;
+}
+
+export interface RuleCreatePayload {
+    id: string;
+    id_penyakit: string;
+    id_gejala: string;
+}
+
+export interface RuleCFPayload {
+    id_pakar: string;
+    nilai: number;
+}

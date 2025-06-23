@@ -60,6 +60,7 @@ export default async function AdminDashboardPage() {
 					label='Admin Pakar'
 					imageUrl='/images/dashboard/stats-pakar.png'
 					color='#3A8A7A'
+					href="/admin/data-pakar"
 				/>
 			</div>
 

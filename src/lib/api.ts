@@ -5,7 +5,12 @@ import type {
     DiagnosisPayload,
     DiagnosisResponse,
     Pakar, Penyakit,
-    Rule
+    Rule,
+    PenyakitPayload,
+    GejalaPayload,
+    PakarPayload,
+    RuleCreatePayload,
+    RuleCFPayload
 } from '@/types';
 import { CATDOC_API_BASE_URL } from './constant';
 
@@ -159,4 +164,95 @@ export async function postDiagnosis(payload: DiagnosisPayload, pakarId: string |
         console.error("Diagnosis error:", error);
         return null;
     }
+}
+
+
+
+// --- FUNGSI CRUD PENYAKIT ---
+export const createPenyakit = async (data: PenyakitPayload) => {
+    const response = await fetch(`${CATDOC_API_BASE_URL}/penyakit`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error('Gagal membuat penyakit');
+    return await response.json();
+};
+
+export const updatePenyakit = async (id: string, data: Partial<PenyakitPayload>) => {
+    const response = await fetch(`${CATDOC_API_BASE_URL}/penyakit/${id}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error('Gagal memperbarui penyakit');
+    return await response.json();
+};
+
+export const deletePenyakit = async (id: string) => {
+    const response = await fetch(`${CATDOC_API_BASE_URL}/penyakit/${id}`, { method: 'DELETE' });
+    if (!response.ok) throw new Error('Gagal menghapus penyakit');
+    return await response.json();
+};
+
+// --- FUNGSI CRUD GEJALA ---
+export const createGejala = async (data: GejalaPayload) => {
+    const response = await fetch(`${CATDOC_API_BASE_URL}/gejala`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error('Gagal membuat gejala');
+    return await response.json();
+};
+
+export const updateGejala = async (id: string, data: Partial<GejalaPayload>) => {
+    const response = await fetch(`${CATDOC_API_BASE_URL}/gejala/${id}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error('Gagal memperbarui gejala');
+    return await response.json();
+};
+
+export const deleteGejala = async (id: string) => {
+    const response = await fetch(`${CATDOC_API_BASE_URL}/gejala/${id}`, { method: 'DELETE' });
+    // Endpoint ini mengembalikan string, jadi kita handle secara berbeda
+    if (response.status !== 200) throw new Error('Gagal menghapus gejala');
+    return await response.text();
+};
+
+
+// --- FUNGSI CRUD PAKAR ---
+export const createPakar = async (data: PakarPayload) => {
+    const response = await fetch(`${CATDOC_API_BASE_URL}/pakar`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error('Gagal membuat pakar');
+    return await response.json();
+};
+
+export const updatePakar = async (id: string, data: Partial<PakarPayload>) => {
+    const response = await fetch(`${CATDOC_API_BASE_URL}/pakar/${id}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error('Gagal memperbarui pakar');
+    return await response.json();
+};
+
+
+// --- FUNGSI CRUD BASIS PENGETAHUAN (RULES) ---
+export const createRule = async (data: RuleCreatePayload) => {
+    const response = await fetch(`${CATDOC_API_BASE_URL}/rules`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error('Gagal membuat aturan');
+    return await response.json();
+};
+
+export const deleteRule = async (id: string) => {
+    const response = await fetch(`${CATDOC_API_BASE_URL}/rules/${id}`, { method: 'DELETE' });
+    if (!response.ok) throw new Error('Gagal menghapus aturan');
+    return await response.json();
+};
+
+export const updateRuleCF = async (ruleId: string, cfData: RuleCFPayload) => {
+    const response = await fetch(`${CATDOC_API_BASE_URL}/rules/${ruleId}/cf`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cfData)
+    });
+    if (!response.ok) throw new Error('Gagal memperbarui nilai CF');
+    return await response.json();
 }
