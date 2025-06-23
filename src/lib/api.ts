@@ -4,7 +4,8 @@ import type {
     CFTerm,
     DiagnosisPayload,
     DiagnosisResponse,
-    Pakar, Penyakit
+    Pakar, Penyakit,
+    Rule
 } from '@/types';
 import { CATDOC_API_BASE_URL } from './constant';
 
@@ -24,7 +25,6 @@ async function fetchCount<T>(endpoint: string): Promise<number> {
     }
 }
 
-// Fungsi getDashboardStats yang sudah ada...
 export async function getDashboardStats() {
     try {
         const [gejalaCount, penyakitCount, pakarCount] = await Promise.all([
@@ -39,51 +39,82 @@ export async function getDashboardStats() {
     }
 }
 
-
-// --- FUNGSI UNTUK DIAGNOSA ---
-
-export async function getAllPenyakit(): Promise<Penyakit[]> {
+export async function getAdminDashboardStats() {
     try {
-        const response = await fetch(`${CATDOC_API_BASE_URL}/penyakit?page=1&size=100`, { cache: 'no-store' });
-        if (!response.ok) {
-            throw new Error('Gagal mengambil data penyakit');
-        }
-        const data: PaginatedResponse<Penyakit> = await response.json();
-        return data.items || [];
+        // Mengambil semua data secara paralel
+        const [penyakitData, gejalaData, rulesData, pakarData] = await Promise.all([
+            getAllPenyakit(1, 1), // Hanya perlu count, jadi size=1
+            getAllGejala(1, 1),
+            getAllRules(1, 1),
+            getAllPakar(1, 1) // Mengasumsikan getAllPakar ada dan mengembalikan paginasi
+        ]);
+
+        return {
+            penyakitCount: penyakitData.count || 0,
+            gejalaCount: gejalaData.count || 0,
+            pengetahuanCount: rulesData.count || 0,
+            pakarCount: pakarData.count || 0,
+        };
     } catch (error) {
-        console.error(error);
-        return [];
+        console.error("Gagal mengambil statistik admin:", error);
+        return { penyakitCount: 0, gejalaCount: 0, pengetahuanCount: 0, pakarCount: 0 };
     }
 }
 
-export async function getAllGejala(): Promise<Gejala[]> {
+
+// --- FUNGSI UNTUK DIAGNOSA ---
+
+export async function getAllPenyakit(page: number = 1, size: number = 10, search: string = ''): Promise<PaginatedResponse<Penyakit>> {
     try {
-        const response = await fetch(`${CATDOC_API_BASE_URL}/gejala?page=1&size=100`, { cache: 'no-store' });
-        if (!response.ok) {
-            throw new Error('Gagal mengambil data gejala');
-        }
-        const data: PaginatedResponse<Gejala> = await response.json();
-        return data.items || [];
+        const searchQuery = search ? `&search=${encodeURIComponent(search)}` : '';
+        const response = await fetch(`${CATDOC_API_BASE_URL}/penyakit?size=${size}&page=${page}${searchQuery}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error('Gagal mengambil data penyakit');
+        return await response.json();
     } catch (error) {
         console.error(error);
-        return [];
+        return { count: 0, items: [], curr_page: 1, total_page: 0, next_page: null, previous_page: null };
+    }
+}
+
+export async function getAllGejala(page: number = 1, size: number = 100, search: string = ''): Promise<PaginatedResponse<Gejala>> {
+    try {
+        const searchQuery = search ? `&search=${encodeURIComponent(search)}` : '';
+        const response = await fetch(`${CATDOC_API_BASE_URL}/gejala?size=${size}&page=${page}${searchQuery}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error('Gagal mengambil data gejala');
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return { count: 0, items: [], curr_page: 1, total_page: 0, next_page: null, previous_page: null };
     }
 }
 
 /**
  * @returns Array dari objek Pakar.
  */
-export async function getAllPakar(): Promise<Pakar[]> {
+export async function getAllPakar(page: number = 1, size: number = 10): Promise<PaginatedResponse<Pakar>> {
     try {
-        const response = await fetch(`${CATDOC_API_BASE_URL}/pakar`, { cache: 'no-store' });
-        if (!response.ok) {
-            throw new Error('Gagal mengambil data pakar');
-        }
-        const data: PaginatedResponse<Pakar> = await response.json();
-        return data.items || [];
+        const response = await fetch(`${CATDOC_API_BASE_URL}/pakar?size=${size}&page=${page}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error('Gagal mengambil data pakar');
+        return await response.json();
     } catch (error) {
         console.error(error);
-        return [];
+        return { count: 0, items: [], curr_page: 1, total_page: 0, next_page: null, previous_page: null };
+    }
+}
+/**
+ * @param page Halaman yang ingin diambil.
+ * @param size Jumlah item per halaman.
+ * @returns Objek PaginatedResponse yang berisi aturan dan info halaman.
+ */
+export async function getAllRules(page: number = 1, size: number = 20, search: string = ''): Promise<PaginatedResponse<Rule>> {
+    try {
+        const searchQuery = search ? `&search=${encodeURIComponent(search)}` : '';
+        const response = await fetch(`${CATDOC_API_BASE_URL}/rules?size=${size}&page=${page}${searchQuery}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error('Gagal mengambil data aturan (rules)');
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return { count: 0, items: [], curr_page: 1, total_page: 0, next_page: null, previous_page: null };
     }
 }
 

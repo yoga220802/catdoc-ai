@@ -97,3 +97,22 @@ export interface RankedResult {
 export interface DiagnosisResponse {
     ranked_results: RankedResult[];
 }
+
+
+/**
+ * Model untuk nilai CF dari setiap pakar dalam sebuah aturan.
+ */
+export interface RuleCF {
+    pakar: Pakar;
+    nilai: number;
+}
+
+/**
+ * Model untuk satu aturan (rule) dalam basis pengetahuan.
+ */
+export interface Rule {
+    id: string;
+    penyakit: Penyakit;
+    gejala: Gejala;
+    rule_cfs: RuleCF[];
+}

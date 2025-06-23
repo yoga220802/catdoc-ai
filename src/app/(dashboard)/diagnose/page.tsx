@@ -151,9 +151,9 @@ export default function DiagnosePage() {
 				getCFTerms(),
 				getAllPakar(),
 			]);
-			setGejalaList(gejalaData);
+			setGejalaList(gejalaData.items);
 			setCfTerms(cfData);
-			setPakarList(pakarData);
+			setPakarList(pakarData.items);
 			setIsLoading(false);
 		}
 		fetchData();

@@ -44,7 +44,7 @@ const PenyakitCard = ({
 	</div>
 );
 
-export default function InfoPage() {
+export default function KeteranganPage() {
 	const [activeTab, setActiveTab] = useState<"penyakit" | "gejala">("penyakit");
 	const [penyakitList, setPenyakitList] = useState<Penyakit[]>([]);
 	const [gejalaList, setGejalaList] = useState<Gejala[]>([]);
@@ -60,19 +60,20 @@ export default function InfoPage() {
 		async function fetchData() {
 			setIsLoading(true);
 			const [penyakitData, gejalaData] = await Promise.all([
-				getAllPenyakit(),
-				getAllGejala(),
+				getAllPenyakit(1, 1000), // Ambil semua data
+				getAllGejala(1, 1000),
 			]);
 
-			// PERBAIKAN: Mengurutkan daftar gejala berdasarkan ID secara numerik
-			const sortedGejala = gejalaData.sort((a, b) => {
+			// PERBAIKAN: Mengurutkan array 'items' dari respons gejala
+			const sortedGejala = gejalaData.items.sort((a, b) => {
 				const numA = parseInt(a.id.slice(1), 10);
 				const numB = parseInt(b.id.slice(1), 10);
 				return numA - numB;
 			});
 
-			setPenyakitList(penyakitData);
-			setGejalaList(sortedGejala); // Menyimpan daftar gejala yang sudah diurutkan
+			// PERBAIKAN: Mengambil array 'items' dari respons
+			setPenyakitList(penyakitData.items);
+			setGejalaList(sortedGejala);
 			setIsLoading(false);
 		}
 		fetchData();
@@ -96,7 +97,6 @@ export default function InfoPage() {
 		<div>
 			<h1 className='text-2xl font-bold mb-4 text-[#004d40]'>Keterangan</h1>
 
-			{/* Tombol Tab */}
 			<div className='flex border-b border-gray-200 mb-6'>
 				<button
 					onClick={() => setActiveTab("penyakit")}
@@ -118,7 +118,6 @@ export default function InfoPage() {
 				</button>
 			</div>
 
-			{/* Konten Tab */}
 			<div>
 				{activeTab === "penyakit" && (
 					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
@@ -162,7 +161,6 @@ export default function InfoPage() {
 				)}
 			</div>
 
-			{/* Modal */}
 			<InfoModal
 				isOpen={!!selectedPenyakit}
 				onClose={handleCloseModal}

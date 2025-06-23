@@ -1,50 +1,63 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { getAllPenyakit } from "@/lib/api";
-import type { Penyakit } from "@/types";
+import { getAllPakar } from "@/lib/api";
+import type { Pakar } from "@/types";
 import LoadingScreen from "@/app/components/features/LoadingScreen";
 
 const ITEMS_PER_PAGE = 10;
 
-export default function DataPenyakitPage() {
-	const [allPenyakit, setAllPenyakit] = useState<Penyakit[]>([]);
+// Custom hook untuk debounce
+function useDebounce<T>(value: T, delay?: number): T {
+	const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+	useEffect(() => {
+		const timer = setTimeout(() => setDebouncedValue(value), delay || 500);
+
+		return () => {
+			clearTimeout(timer);
+		};
+	}, [value, delay]);
+
+	return debouncedValue;
+}
+
+export default function DataPakarPage() {
+	const [allPakar, setAllPakar] = useState<Pakar[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [searchQuery, setSearchQuery] = useState("");
+	const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
 	useEffect(() => {
 		async function fetchData() {
 			setIsLoading(true);
-			const data = await getAllPenyakit(1, 1000); // Ambil semua data sekaligus
-			setAllPenyakit(data.items);
+			const data = await getAllPakar(1, 1000); // Ambil semua data
+			setAllPakar(data.items);
 			setIsLoading(false);
 		}
 		fetchData();
 	}, []);
 
-	// Memoized value untuk data yang difilter
-	const filteredPenyakit = useMemo(() => {
-		if (!searchQuery) {
-			return allPenyakit;
+	const filteredPakar = useMemo(() => {
+		if (!debouncedSearchQuery) {
+			return allPakar;
 		}
-		return allPenyakit.filter((p) =>
-			p.nama.toLowerCase().includes(searchQuery.toLowerCase())
+		return allPakar.filter((p) =>
+			p.nama.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
 		);
-	}, [allPenyakit, searchQuery]);
+	}, [allPakar, debouncedSearchQuery]);
 
-	// Memoized value untuk data yang dipaginasi
-	const paginatedPenyakit = useMemo(() => {
+	const paginatedPakar = useMemo(() => {
 		const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-		return filteredPenyakit.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-	}, [filteredPenyakit, currentPage]);
+		return filteredPakar.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+	}, [filteredPakar, currentPage]);
 
-	const totalPages = Math.ceil(filteredPenyakit.length / ITEMS_PER_PAGE);
+	const totalPages = Math.ceil(filteredPakar.length / ITEMS_PER_PAGE);
 
-	// Reset ke halaman 1 saat query pencarian berubah
 	useEffect(() => {
 		setCurrentPage(1);
-	}, [searchQuery]);
+	}, [debouncedSearchQuery]);
 
 	const handlePageChange = (newPage: number) => {
 		if (newPage > 0 && newPage <= totalPages) {
@@ -53,17 +66,17 @@ export default function DataPenyakitPage() {
 	};
 
 	if (isLoading) {
-		return <LoadingScreen inline message='Memuat data penyakit...' />;
+		return <LoadingScreen inline message='Memuat data pakar...' />;
 	}
 
 	return (
 		<div>
 			<div className='flex flex-col md:flex-row justify-between items-center mb-6 gap-4'>
-				<h1 className='text-2xl font-bold text-[#004d40]'>Data Penyakit</h1>
+				<h1 className='text-2xl font-bold text-[#004d40]'>Data Pakar</h1>
 				<div className='flex gap-4 w-full md:w-auto'>
 					<input
 						type='text'
-						placeholder='Cari penyakit...'
+						placeholder='Cari nama pakar...'
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
 						className='w-full md:w-64 px-4 py-2 border rounded-lg'
@@ -78,24 +91,20 @@ export default function DataPenyakitPage() {
 					<thead className='text-xs text-gray-700 uppercase bg-gray-50'>
 						<tr>
 							<th className='px-6 py-3'>No</th>
-							<th className='px-6 py-3'>Kode</th>
-							<th className='px-6 py-3'>Penyakit</th>
-							<th className='px-6 py-3'>Deskripsi</th>
-							<th className='px-6 py-3'>Saran</th>
+							<th className='px-6 py-3'>ID Pakar</th>
+							<th className='px-6 py-3'>Nama Pakar</th>
 							<th className='px-6 py-3'>Pilihan</th>
 						</tr>
 					</thead>
 					<tbody>
-						{paginatedPenyakit.length > 0 ? (
-							paginatedPenyakit.map((penyakit, index) => (
-								<tr key={penyakit.id} className='bg-white border-b hover:bg-gray-50'>
+						{paginatedPakar.length > 0 ? (
+							paginatedPakar.map((pakar, index) => (
+								<tr key={pakar.id} className='bg-white border-b hover:bg-gray-50'>
 									<td className='px-6 py-4'>
 										{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
 									</td>
-									<td className='px-6 py-4 font-medium text-gray-900'>{penyakit.id}</td>
-									<td className='px-6 py-4'>{penyakit.nama}</td>
-									<td className='px-6 py-4 truncate max-w-xs'>{penyakit.deskripsi}</td>
-									<td className='px-6 py-4 truncate max-w-xs'>{penyakit.solusi}</td>
+									<td className='px-6 py-4 font-medium text-gray-900'>{pakar.id}</td>
+									<td className='px-6 py-4'>{pakar.nama}</td>
 									<td className='px-6 py-4 flex gap-2'>
 										<button className='bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded hover:bg-blue-600'>
 											Ubah
@@ -108,7 +117,7 @@ export default function DataPenyakitPage() {
 							))
 						) : (
 							<tr>
-								<td colSpan={6} className='text-center p-4'>
+								<td colSpan={4} className='text-center p-4'>
 									Data tidak ditemukan.
 								</td>
 							</tr>

@@ -1,15 +1,8 @@
-// Untuk saat ini, kita akan gunakan data dummy.
-// Nanti ini bisa diganti dengan pemanggilan API.
-
 import StatCard from "@/app/components/dashboard/StatCard";
 import Image from "next/image";
+import { getAdminDashboardStats } from "@/lib/api";
 
-const adminStats = {
-	gejalaCount: 50,
-	penyakitCount: 23,
-	pengetahuanCount: 50,
-	pakarCount: 5,
-};
+export const dynamic = "force-dynamic";
 
 const infoCards = [
 	{
@@ -32,37 +25,41 @@ const infoCards = [
 	},
 ];
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+	// Mengambil data nyata dari API
 	const { gejalaCount, penyakitCount, pengetahuanCount, pakarCount } =
-		adminStats;
+		await getAdminDashboardStats();
 
 	return (
 		<div>
-			{/* Bagian Kartu Statistik */}
+			{/* Bagian Kartu Statistik dengan data nyata dan tautan */}
 			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
 				<StatCard
-					color='#A1E6D0'
 					value={gejalaCount}
 					label='Gejala'
 					imageUrl='/images/dashboard/stats-gejala.png'
+					color='#A1E6D0'
+					href='/admin/data-gejala'
 				/>
 				<StatCard
-					color='#6CCDAF'
 					value={penyakitCount}
 					label='Penyakit'
 					imageUrl='/images/dashboard/stats-penyakit.png'
+					color='#6CCDAF'
+					href='/admin/data-penyakit'
 				/>
 				<StatCard
-					color='#4BB79A'
 					value={pengetahuanCount}
-					label='Pengetahuan'
+					label='Basis Pengetahuan'
 					imageUrl='/images/dashboard/stats-pengetahuan.png'
+					color='#4BB79A'
+					href='/admin/basis-pengetahuan'
 				/>
 				<StatCard
-					color='#1AA08F'
 					value={pakarCount}
 					label='Admin Pakar'
 					imageUrl='/images/dashboard/stats-pakar.png'
+					color='#3A8A7A'
 				/>
 			</div>
 

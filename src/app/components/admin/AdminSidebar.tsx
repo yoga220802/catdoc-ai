@@ -1,7 +1,12 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HomeIcon, DiagnoseIcon, InfoIcon } from "@/app/components/icons"; // Bisa gunakan ikon yang sama
+import {
+	HomeIcon,
+	DiagnoseIcon,
+	InfoIcon,
+	PakarIcon,
+} from "@/app/components/icons"; // Impor PakarIcon
 
 // Definisikan tipe untuk properti Sidebar
 interface SidebarProps {
@@ -18,6 +23,7 @@ const adminMenuItems = [
 		label: "Basis Pengetahuan",
 		icon: InfoIcon,
 	},
+	{ href: "/admin/data-pakar", label: "Data Pakar", icon: PakarIcon },
 ];
 
 export default function AdminSidebar({ isOpen }: SidebarProps) {
