@@ -193,16 +193,16 @@ export default function DataPenyakitPage() {
 				<button
 					onClick={() => handlePageChange(currentPage - 1)}
 					disabled={currentPage === 1}
-					className='px-4 py-2 text-sm rounded-md disabled:opacity-50'>
+					className='px-4 py-2 bg-teal-500 text-sm rounded-md disabled:opacity-50'>
 					Sebelumnya
 				</button>
-				<span className='text-sm'>
+				<span className='text-sm text-teal-500 '>
 					Halaman {currentPage} dari {totalPages > 0 ? totalPages : 1}
 				</span>
 				<button
 					onClick={() => handlePageChange(currentPage + 1)}
 					disabled={currentPage === totalPages || totalPages === 0}
-					className='px-4 py-2 text-sm rounded-md disabled:opacity-50'>
+					className='px-4 py-2 bg-teal-500 text-sm rounded-md disabled:opacity-50'>
 					Berikutnya
 				</button>
 			</div>

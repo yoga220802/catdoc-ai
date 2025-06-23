@@ -161,17 +161,17 @@ export default function DataPakarPage() {
 				<button
 					onClick={() => handlePageChange(currentPage - 1)}
 					disabled={currentPage === 1}
-					className='px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50'>
+					className='px-4 py-2 bg-teal-500  text-sm font-medium border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50'>
 					Sebelumnya
 				</button>
-				<span className='text-sm text-gray-700'>
+				<span className='text-sm text-teal-500'>
 					Halaman <span className='font-semibold'>{currentPage}</span> dari{" "}
 					<span className='font-semibold'>{totalPages > 0 ? totalPages : 1}</span>
 				</span>
 				<button
 					onClick={() => handlePageChange(currentPage + 1)}
 					disabled={currentPage === totalPages || totalPages === 0}
-					className='px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50'>
+					className='px-4 py-2 bg-teal-500  text-sm font-medium border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50'>
 					Berikutnya
 				</button>
 			</div>
