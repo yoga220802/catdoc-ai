@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link"; // Import Link for navigation
 
 interface StatCardProps {
 	value: number | string;
@@ -34,9 +35,9 @@ export default function StatCard({
 	);
 
 	return href ? (
-		<a href={href} className='block'>
+		<Link href={href} className='block'>
 			{cardContent}
-		</a>
+		</Link>
 	) : (
 		cardContent
 	);

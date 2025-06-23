@@ -39,28 +39,28 @@ export default async function AdminDashboardPage() {
 					label='Gejala'
 					imageUrl='/images/dashboard/stats-gejala.png'
 					color='#A1E6D0'
-					href='/admin/data-gejala'
+					href='/admin/data-gejala' // Ensure this is a valid route
 				/>
 				<StatCard
 					value={penyakitCount}
 					label='Penyakit'
 					imageUrl='/images/dashboard/stats-penyakit.png'
 					color='#6CCDAF'
-					href='/admin/data-penyakit'
+					href='/admin/data-penyakit' // Ensure this is a valid route
 				/>
 				<StatCard
 					value={pengetahuanCount}
 					label='Basis Pengetahuan'
 					imageUrl='/images/dashboard/stats-pengetahuan.png'
 					color='#4BB79A'
-					href='/admin/basis-pengetahuan'
+					href='/admin/basis-pengetahuan' // Ensure this is a valid route
 				/>
 				<StatCard
 					value={pakarCount}
 					label='Admin Pakar'
 					imageUrl='/images/dashboard/stats-pakar.png'
 					color='#3A8A7A'
-					href="/admin/data-pakar"
+					href='/admin/data-pakar' // Ensure this is a valid route
 				/>
 			</div>
 
